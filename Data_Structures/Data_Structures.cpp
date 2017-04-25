@@ -2,8 +2,7 @@
 #include <iostream>
 #include <iomanip>
 using namespace std;
-template <class T>
-class Node {
+template <class T> class Node {
 	T nodeValue;
 	Node *next;
 	Node *prev;
@@ -13,7 +12,7 @@ public:
 	Node(T nv) {
 		this->nodeValue = nv;
 	}
-	T getValue() {
+	const T getValue() const{
 		return nodeValue;
 	}
 	void setValue(T nv) {
@@ -29,36 +28,63 @@ public:
 	void setPrev(Node *prev) {
 		this->prev = prev;
 	}
-	Node* getPrev() {
+	Node* getPrev() const{
 		return prev;
 	}
 
 };
-template <class T>
-class List {
+class ListException : public exception {
+	const char* message;
+	public:
+		ListException(const char* m) {
+			this->message = m;
+		};
+		const char* what() const throw() {
+			return message;
+		}
+};
+
+template <class T> class List {
+	template <class T> friend class Stack;
 	Node<T> *startNode;
 	int count;
-public:
-	List() {
-		startNode = NULL;
-		count = 0;
+	void Delete() {
+		Node<T> *n = startNode;
+		for (int i = 0; i < count; i++) {
+			startNode = startNode->getNext();
+			delete n;
+			n = startNode;
+		}
+		cout << "Memory has been cleared\n";
 	}
 
 	void InsertAt(T element, int position) {
-		if (position > count) { //
-			cout << "Out of bound";
-		}
-		else {
-			Node<T> *newNode = new Node<T>(element);
-			Node<T> *n = startNode;
-			for (int i = 0; i < position - 1; i++) {
-				n = n->getNext();
+		try {
+			if (position <= count) {
+				Node<T> *newNode = new Node<T>(element);
+				Node<T> *n = startNode;
+				if (position < count / 2) {
+					for (int i = 0; i < position - 1; i++) {
+						n = n->getNext();
+					}
+				}
+				else {
+					for (int i = 0; i <= count - position; i++) {
+						n = n->getPrev();
+					}
+				}
+				newNode->setNext(n);
+				n->getPrev()->setNext(newNode);
+				newNode->setPrev(n->getPrev());
+				n->setPrev(newNode);
+				count++;
 			}
-			newNode->setNext(n);
-			n->getPrev()->setNext(newNode);
-			newNode->setPrev(n->getPrev());
-			n->setPrev(newNode);
-			count++;
+			else {
+				throw ListException("position is out of bounds");
+			}
+		}
+		catch (ListException &e) {
+			cout << e.what() << endl;
 		}
 
 	}
@@ -95,27 +121,28 @@ public:
 		count++;
 	}
 
-	void RemoveAt(int position) {
-		if (position > count)
-			cout << "Out of bounds";
-		else {
-			Node<T> *n = startNode;
-			for (int i = 0; i < position - 1; i++) {
-				n = n->getNext();
-			}
-			n->getNext()->setPrev(n->getPrev());
-			n->getPrev()->setNext(n->getNext());
-			delete n;
-			count--;
-		}
-	}
-	void Delete() {
+	T RemoveAt(int position) {
 		Node<T> *n = startNode;
-		for (int i = 0; i < count; i++) {
-			startNode = startNode->getNext();
-			delete n;
-			n = startNode;
+		T value = NULL;
+		try {
+			if (position <= count) {
+				for (int i = 0; i < position - 1; i++) {
+					n = n->getNext();
+				}
+				n->getNext()->setPrev(n->getPrev());
+				n->getPrev()->setNext(n->getNext());
+				value = n->getValue();
+				delete n;
+				count--;
+			}
+			else {
+				throw ListException("Position is out of bounds");
+			}
 		}
+		catch (ListException& e) {
+			cout << e.what() << endl;
+		}
+		return value;
 	}
 
 	void Print() {
@@ -132,21 +159,53 @@ public:
 		cout << '\n';
 	}
 
+public:
+	List() {
+		startNode = NULL;
+		count = 0;
+	}
+	~List() {
+		Delete();
+	}
+
+};
+
+template <class T> class Stack{
+	List<T> l;
+public:
+	Stack() {
+	}
+
+	void Push(T element) {
+		l.InsertAfter(element);
+	}
+	T Pop() {
+		return l.RemoveAt(l.count);
+	}
+	void PrintStack() {
+		l.Print();
+	}
 };
 
 int main()
 {
 	Node<int>n = Node<int>(1);
 	Node<char>n1 = Node<char>('a');
-	List<int> l;
-	l.InsertAfter(2);
+	Stack<int> s;
+	s.Push(1);
+	s.Push(2);
+	s.Push(3);
+	s.Push(4);
+	s.Push(5);
+	cout << s.Pop();
+	s.PrintStack();
+	/*	l.InsertAfter(2);
 	l.InsertAfter(4);
 	l.InsertAfter(6);
 	l.InsertAfter(8);
 	l.InsertAfter(9);
 	l.InsertAt(10, 3);
-	l.RemoveAt(3);
-	l.Print();
-	l.Delete();
+	//l.RemoveAt(3);
+	l.Print();*/
 	return 0;
 }

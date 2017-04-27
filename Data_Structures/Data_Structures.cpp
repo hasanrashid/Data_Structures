@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include <iostream>
 #include <iomanip>
+#include <windows.h>
 using namespace std;
 template <class T> class Node {
 	T nodeValue;
@@ -45,7 +46,10 @@ class ListException : public exception {
 };
 
 template <class T> class List {
+
 	template <class T> friend class Stack;
+	template <class T> friend class Queue;
+
 	Node<T> *startNode;
 	int count;
 	void Delete() {
@@ -126,12 +130,14 @@ template <class T> class List {
 		T value = NULL;
 		try {
 			if (position <= count) {
-				for (int i = 0; i < position - 1; i++) {
+				for (int i = 1; i < position; i++) {
 					n = n->getNext();
 				}
 				n->getNext()->setPrev(n->getPrev());
 				n->getPrev()->setNext(n->getNext());
 				value = n->getValue();
+				if(position == 1)
+					startNode = startNode->getNext();
 				delete n;
 				count--;
 			}
@@ -152,7 +158,7 @@ template <class T> class List {
 			cout << setw(3) << right << i << ' ';
 		}
 		cout << '\n' << "   Value: ";
-		for (int i = 0; i < count; i++) {
+		for (int i = 1; i <= count; i++) {
 			cout << setw(3) << right << n->getValue() << ' ';
 			n = n->getNext();
 		}
@@ -175,37 +181,126 @@ template <class T> class Stack{
 public:
 	Stack() {
 	}
-
+	
 	void Push(T element) {
 		l.InsertAfter(element);
 	}
 	T Pop() {
 		return l.RemoveAt(l.count);
 	}
-	void PrintStack() {
+	int PrintStack() {
+		HANDLE hStdout;
+		CONSOLE_SCREEN_BUFFER_INFO csbiInfo;
+		COORD coordDest;
+
+		hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
+
+		if (hStdout == INVALID_HANDLE_VALUE)
+		{
+			printf("GetStdHandle failed with %d\n", GetLastError());
+			return NULL;
+		}
+
+		// Get the screen buffer size. 
+
+		if (!GetConsoleScreenBufferInfo(hStdout, &csbiInfo))
+		{
+			printf("GetConsoleScreenBufferInfo failed %d\n", GetLastError());
+			return NULL;
+		}
+
+		Node<T> *n = l.startNode;
+		if (hStdout == NULL) {
+			return 1;
+		}
+
+		cout << "Position: " << endl;
+
+		int height = csbiInfo.dwCursorPosition.Y;
+		for (int i = 1; i <= l.count; i++) {
+			cout << setw(3) << right << i << endl;
+			csbiInfo.dwCursorPosition.Y = height+i+1;
+			SetConsoleCursorPosition(hStdout, csbiInfo.dwCursorPosition);
+		}
+		csbiInfo.dwCursorPosition.X = 11;
+		csbiInfo.dwCursorPosition.Y = csbiInfo.dwCursorPosition.Y - l.count-1;
+		SetConsoleCursorPosition(hStdout, csbiInfo.dwCursorPosition);
+		cout << "Value: " << endl;
+
+		height = csbiInfo.dwCursorPosition.Y;
+
+		for (int i = 1; i <= l.count; i++) {			
+			n = n->getPrev();
+			csbiInfo.dwCursorPosition.X = 11;
+			csbiInfo.dwCursorPosition.Y = i+height;
+			SetConsoleCursorPosition(hStdout, csbiInfo.dwCursorPosition);
+			cout << setw(3) << right << n->getValue() << endl;
+		}
+		cout << '\n';
+
+		return 0;
+	}
+};
+
+template <class T> class Queue {
+	List<T> l;
+
+public:
+	Queue() {
+	
+	}
+	void Enqueue(T element) {
+		l.InsertAfter(element);
+	}
+	T Dequeue() {
+		return l.RemoveAt(1);
+	}
+	void PrintQueue() {
 		l.Print();
 	}
 };
+
+HANDLE setPosition(CONSOLE_SCREEN_BUFFER_INFO *csbiInfo) {
+	
+	HANDLE hStdout;
+	SMALL_RECT srctScrollRect, srctClipRect;
+	CHAR_INFO chiFill;
+	COORD coordDest;
+
+
+	return hStdout;
+}
 
 int main()
 {
 	Node<int>n = Node<int>(1);
 	Node<char>n1 = Node<char>('a');
 	Stack<int> s;
-	s.Push(1);
-	s.Push(2);
-	s.Push(3);
-	s.Push(4);
-	s.Push(5);
-	cout << s.Pop();
+	s.Push(21);
+	s.Push(22);
+	s.Push(23);
+	s.Push(24);
+	s.Push(25);
 	s.PrintStack();
-	/*	l.InsertAfter(2);
-	l.InsertAfter(4);
-	l.InsertAfter(6);
-	l.InsertAfter(8);
-	l.InsertAfter(9);
-	l.InsertAt(10, 3);
-	//l.RemoveAt(3);
-	l.Print();*/
+	s.Pop();
+	s.PrintStack();
+	s.Pop();
+	s.PrintStack();
+	s.Push(26);
+	s.PrintStack();
+	s.Pop();
+	s.PrintStack();
+
+/*	Queue<char> q;
+
+	q.Enqueue('c');
+	q.Enqueue('d');
+	q.Enqueue('e');
+	q.Enqueue('f');
+	q.Enqueue('g');
+	q.Enqueue('h');
+	q.PrintQueue();
+	cout << q.Dequeue() << endl;
+	q.PrintQueue();*/
 	return 0;
 }

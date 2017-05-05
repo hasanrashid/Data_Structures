@@ -51,6 +51,7 @@ template <class T> class List {
 
 	template <class T> friend class Stack;
 	template <class T> friend class Queue;
+	template <class T> friend class Tree;
 
 	Node<T> *startNode;
 	int count;
@@ -126,22 +127,14 @@ template <class T> class List {
 		}
 		count++;
 	}
-
-	T RemoveAt(int position) {
+	
+	Node<T>* ElementAt(int position) {
 		Node<T> *n = startNode;
-		T value = NULL;
 		try {
 			if (position <= count) {
 				for (int i = 1; i < position; i++) {
 					n = n->getNext();
 				}
-				n->getNext()->setPrev(n->getPrev());
-				n->getPrev()->setNext(n->getNext());
-				value = n->getValue();
-				if (position == 1)
-					startNode = startNode->getNext();
-				delete n;
-				count--;
 			}
 			else {
 				throw ListException("Position is out of bounds");
@@ -149,6 +142,26 @@ template <class T> class List {
 		}
 		catch (ListException& e) {
 			std::cout << e.what() << endl;
+		}
+		return n;
+	}
+	void UpdateAt(T value, int position) {
+		Node<T> *n = ElementAt(position);
+		if (n != NULL) {
+			n->setValue(value);
+		}
+	}
+	T RemoveAt(int position) {
+		Node<T> *n = ElementAt(position);
+		T value = NULL;
+		if (n != NULL) {
+			value = n->getValue();
+			n->getNext()->setPrev(n->getPrev());
+			n->getPrev()->setNext(n->getNext());
+			if (position == 1)
+				startNode = startNode->getNext();
+			delete n;
+			count--;
 		}
 		return value;
 	}

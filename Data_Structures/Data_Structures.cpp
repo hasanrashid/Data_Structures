@@ -1,13 +1,13 @@
 #include "stdafx.h"
 #include "Stack.h"
 #include "Queue.h"
+#include "Tree.h"
+
 using namespace std;
-
-
-
 
 int main()
 {
+	/*
 	Node<int>n = Node<int>(1);
 	Node<char>n1 = Node<char>('a');
 	Stack<int> s;
@@ -36,6 +36,12 @@ int main()
 	q.Enqueue('h');
 	q.PrintQueue();
 	cout << q.Dequeue() << endl;
-	q.PrintQueue();
+	q.PrintQueue();*/
+
+/*	DataStructures::Tree<int> t(53);
+	DataStructures::Element<int> *r = t.getRoot();
+	t.Insert(22,r);
+	t.Insert(67,r);
+	t.InOrder(t.getRoot());*/
 	return 0;
 }

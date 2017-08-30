@@ -6,31 +6,24 @@
 #include <iomanip>
 #include <windows.h>
 
-template <class T> class Queue {
-	List<T> l;
+namespace DataStructures {
 
-public:
-	Queue() {
+	template <class T> class Queue {
 
-	}
-	void Enqueue(T element) {
-		l.InsertAfter(element);
-	}
-	T Dequeue() {
-		return l.RemoveAt(1);
-	}
-	void PrintQueue() {
-		l.Print();
-	}
-};
+		List<T> l;
 
-HANDLE setPosition(CONSOLE_SCREEN_BUFFER_INFO *csbiInfo) {
+		public:
+		Queue() {
 
-	HANDLE hStdout;
-	SMALL_RECT srctScrollRect, srctClipRect;
-	CHAR_INFO chiFill;
-	COORD coordDest;
-
-
-	return hStdout;
+		}
+		void Enqueue(T element) {
+			l.InsertAfter(element);
+		}
+		T Dequeue() {
+			return l.RemoveAt(1);
+		}
+		void PrintQueue() {
+			l.Print();
+		}
+	};
 }

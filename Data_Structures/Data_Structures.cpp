@@ -2,7 +2,7 @@
 #include "Stack.h"
 #include "Queue.h"
 #include "Tree.h"
-
+#include "List.h"
 using namespace std;
 
 int main()
